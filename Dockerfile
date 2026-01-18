@@ -1,28 +1,18 @@
-# Use Java 21 (matches your local setup)
-FROM eclipse-temurin:21-jdk
-
-# Set working directory
+# -------- Build stage --------
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY mvnw .
-COPY .mvn .mvn
 COPY pom.xml .
+COPY src ./src
 
-# Give execution permission
-RUN chmod +x mvnw
+RUN mvn clean package -DskipTests
 
-# Download dependencies (faster builds)
-RUN ./mvnw dependency:go-offline
+# -------- Run stage --------
+FROM eclipse-temurin:21-jre
+WORKDIR /app
 
-# Copy source code
-COPY src src
+COPY --from=build /app/target/*.jar app.jar
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Expose port used by Spring Boot
 EXPOSE 8080
 
-# Run the app
-CMD ["java", "-jar", "target/*.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
