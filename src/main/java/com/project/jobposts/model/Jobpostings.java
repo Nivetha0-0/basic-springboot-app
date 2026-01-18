@@ -2,11 +2,15 @@ package com.project.jobposts.model;
 
 import java.util.Arrays;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
 @Document(collection="posts")
 public class Jobpostings {
+
+    @Id
+    private String id;  // MongoDB _id
 
     private String profile;
     private String desc;
